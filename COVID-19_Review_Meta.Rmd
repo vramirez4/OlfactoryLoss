@@ -1,0 +1,168 @@
+---
+title: "COVID-19 Review and Meta-Analysis"
+author: "Vicente Ramirez"
+date: "6/5/2020"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r echo=FALSE}
+require(tidyverse)
+require(magrittr)
+require(meta)
+require(metaviz)
+require(readxl)
+```
+
+## Removing Unnecessary Data
+```{r cache=TRUE}
+dat<-read_excel("Review_Data.xlsx")
+dat %<>%
+  filter(`RH Include?`=="YES")
+##We dedcided to filter this becuase it was not in english
+dat %<>% filter(`Author Name`!= "Bocksberger et al.")
+COVID19 <- dat %>% select(`Article Number`,`Author Name`,DOI,`Number of subjects`,Cases,Type,Measured)
+write_csv(COVID19,"COVID19_REVIEW_DATA_.csv")
+rm(dat)
+```
+
+## Compute some statistics
+```{r fig.height = 6, fig.width = 12, cache=TRUE}
+COVID19$p<- COVID19$Cases/COVID19$`Number of subjects`
+
+COVID19$S.E.<- sqrt((COVID19$p*(1-COVID19$p))/COVID19$`Number of subjects`)
+COVID19$CI_Lower<-COVID19$p - 1.96*COVID19$S.E.
+COVID19$CI_Upper<- COVID19$p
+COVID19 <- COVID19[order(COVID19$p,decreasing = T),]
+summary_COVID_Obj<-data.frame(Name="Summary (Objective)",Subjects=sum(COVID19[COVID19$Type=="Objective","Number of subjects"]),Cases=sum(COVID19[COVID19$Type=="Objective","Cases"]))
+summary_COVID_Sub<-data.frame(Name="Summary (Subjective)",Subjects=sum(COVID19[COVID19$Type=="Subjective","Number of subjects"]),Cases=sum(COVID19[COVID19$Type=="Subjective","Cases"]))
+
+summary_COVID<-bind_rows(summary_COVID_Obj,summary_COVID_Sub)
+COVID19$`Measure Type`<-as.factor(COVID19$Type)
+```
+
+## Computing Detailed Meta-Analysis of Proportions
+
+### IVM
+First we compute using the Inverse Variance Method
+```{r fig.align = "center", fig.height = 10.5, fig.width = 9.5, cache=TRUE}
+ma.INV<-metaprop(COVID19$Cases,n=COVID19$`Number of subjects`,studlab = COVID19$`Author Name`,byvar = COVID19$`Measure Type`,data=COVID19, method="Inverse",sm="PFT", method.ci = "WS")
+d=date()
+#pdf(sprintf("Forestplot_%s",d))
+forest(ma.INV,col.by = "black",pooled.events = T,bylab = "Measurement Type")
+#dev.off()
+```
+
+###GLMM
+Next we compute using the GLMM method. We ultimately do no use this in the paper.
+```{r fig.align = "center", fig.height = 10.5, fig.width = 9.5, cache=TRUE}
+ma.GLMM<-metaprop(COVID19$Cases,n=COVID19$`Number of subjects`,studlab = COVID19$`Author Name`,byvar = COVID19$`Measure Type`,data=COVID19, method.ci = "WS")
+
+forest(ma.GLMM,,col.by = "black",pooled.events = T,bylab = "Measurement Type")
+```
+
+
+##Flow Chart
+This code was adapted from Peter Higgins post on https://rpubs.com/phiggins/461686
+```{r cache=TRUE}
+data <- tibble(x= 1:100, y= 1:100)
+head(data)
+
+p<- data %>% 
+  ggplot(aes(x, y)) +
+  scale_x_continuous(minor_breaks = seq(0, 100, 10)) +
+  scale_y_continuous(minor_breaks = seq(0, 100, 10)) +
+  theme_linedraw()
+
+p <- p +
+  geom_rect(xmin = 36, xmax=64, ymin=90, ymax=100, color='black',
+            fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 50, y=95,label=
+             'Assessed for eligibility through database\n searching (Pubmed, Medline, Google Scholar).\n Performed 5/15/2020 N=78',
+           size=2.5)
+p<- p +
+  geom_rect(xmin = 75, xmax=100, ymin=80, ymax=90, color='black',
+            fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 87, y=85,label=
+             'Excluded N=35 \n Not meeting inclusion criteria or data unavailable \n Not written in the English language',
+           size=2.5)
+```
+##HERE IS ESSENTIALLY WHAT WE ARE DOING RIGHT NOW.
+It is ugly for now, but this is the thought process behind the code
+```{r fig.width=12, fig.height=8, cache=TRUE}
+p
+```
+
+##Final Version
+```{r fig.width=12, fig.height=8, cache=TRUE}
+p<- p +
+  geom_rect(xmin = 36, xmax=64, ymin=70, ymax=80, color='black',
+          fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 50, y=75,label=
+            'Eligible papers for inclusion \nMeasure of olfactory dysfunction \nN=43',
+             size=2.5)
+
+p <- p +
+  geom_rect(xmin = 75, xmax=100, ymin=60, ymax=70, color='black',
+          fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 87, y=65,label=
+             'Excluded \n Not lab tested COVID N=5\n Recruitment of Patients With Smell Loss N=3 \n Papers with Overlapping Samples N=1',
+           size=2.5)
+p<- p +
+  geom_rect(xmin = 36, xmax=64, ymin=50, ymax=60, color='black',
+            fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 50, y=55,label=
+             'Full text screened for prevalence rate \nN=34',
+           size=2.5)
+
+p<- p +
+  geom_rect(xmin = 36, xmax=64, ymin=30, ymax=40, color='black',
+            fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 50, y=35,label=
+             ' Data extracted N=34 \nTwo authors extracted data \nTwo authors confirmed data extracted',
+           size=2.5)
+
+p<- p +
+  geom_rect(xmin = 36, xmax=64, ymin=10, ymax=20, color='black',
+            fill='white', size=0.25, size=0.25) +
+  annotate('text', x= 50, y=15,label=
+             'Articles included \nN=34',
+           size=2.5)
+
+
+p <-p +
+  geom_segment(
+    x=50, xend=50, y=90, yend=80.3, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed")) +
+  geom_segment(
+    x=50, xend=74.7, y=85, yend=85, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed")) +
+  geom_segment(
+    x=50, xend=50, y=70, yend=60.3, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed")) +
+  geom_segment(
+    x=50, xend=74.7, y=65, yend=65, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed")) +
+  geom_segment(
+    x=50, xend=50, y=50, yend=40.3, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed")) +
+  geom_segment(
+    x=50, xend=50, y=30, yend=20.3, 
+    size=0.10, linejoin = "mitre", lineend = "butt",
+    arrow = arrow(length = unit(1, "mm"), type= "closed"))
+
+
+p + theme_void()
+```
