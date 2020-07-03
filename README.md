@@ -1,5 +1,8 @@
 # Olfactory Loss
 
+## On-Going Analysis
+This meta-analysis is currently ongoing, and continually being added to. In order to continue reporting future findings, we have hosted an application which can be found at https://vicente-ramirez.shinyapps.io/COVID19_Olfactory_Dashboard/
+
 ## Background
 We conducted a systematic review and meta-analysis of 34 studies reporting olfactory dysfunction (smell loss) in patients who have tested positive for COVID-19. We explored differences in reported prevalence based on the methodology used to measure smell loss as being either objective (for example these tools may test olfactory intensity or ability to discriminate odors) or subjective (typically self reported smell loss).
 
@@ -12,6 +15,3 @@ Severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2), which causes coron
 Mackenzie E. Hannum*, Vicente A. Ramirez*, Sarah J. Lipson, Riley D. Herriman, Aurora K. Toskala, Cailu Lin, Paule V. Joseph and Danielle R. Reed
 
 *These authors contributed equally to this analysis
-
-## On-Going Analysis
-This meta-analysis is currently ongoing, and continually being added to. In order to continue reporting future findings, we have hosted an application which can be found at https://vicente-ramirez.shinyapps.io/COVID19_Olfactory_Dashboard/
