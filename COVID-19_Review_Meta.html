@@ -1699,7 +1699,7 @@ rm(dat)</code></pre>
 
 COVID19$S.E.&lt;- sqrt((COVID19$p*(1-COVID19$p))/COVID19$`Number of subjects`)
 COVID19$CI_Lower&lt;-COVID19$p - 1.96*COVID19$S.E.
-COVID19$CI_Upper&lt;- COVID19$p
+COVID19$CI_Upper&lt;- COVID19$p + 1.96*COVID19$S.E.
 COVID19 &lt;- COVID19[order(COVID19$p,decreasing = T),]
 summary_COVID_Obj&lt;-data.frame(Name=&quot;Summary (Objective)&quot;,Subjects=sum(COVID19[COVID19$Type==&quot;Objective&quot;,&quot;Number of subjects&quot;]),Cases=sum(COVID19[COVID19$Type==&quot;Objective&quot;,&quot;Cases&quot;]))
 summary_COVID_Sub&lt;-data.frame(Name=&quot;Summary (Subjective)&quot;,Subjects=sum(COVID19[COVID19$Type==&quot;Subjective&quot;,&quot;Number of subjects&quot;]),Cases=sum(COVID19[COVID19$Type==&quot;Subjective&quot;,&quot;Cases&quot;]))
