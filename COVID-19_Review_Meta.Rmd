@@ -48,7 +48,7 @@ summary_COVID<-bind_rows(summary_COVID_Obj,summary_COVID_Sub)
 COVID19$`Measure Type`<-as.factor(COVID19$Type)
 ```
 
-## Computing Detailed Meta-Analysis of Proportions
+## Computing Meta-Analysis of Proportions
 
 ### IVM
 First we compute using the Inverse Variance Method
