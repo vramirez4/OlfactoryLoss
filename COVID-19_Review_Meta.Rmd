@@ -39,7 +39,7 @@ COVID19$p<- COVID19$Cases/COVID19$`Number of subjects`
 
 COVID19$S.E.<- sqrt((COVID19$p*(1-COVID19$p))/COVID19$`Number of subjects`)
 COVID19$CI_Lower<-COVID19$p - 1.96*COVID19$S.E.
-COVID19$CI_Upper<- COVID19$p
+COVID19$CI_Upper<- COVID19$p + 1.96*COVID19$S.E.
 COVID19 <- COVID19[order(COVID19$p,decreasing = T),]
 summary_COVID_Obj<-data.frame(Name="Summary (Objective)",Subjects=sum(COVID19[COVID19$Type=="Objective","Number of subjects"]),Cases=sum(COVID19[COVID19$Type=="Objective","Cases"]))
 summary_COVID_Sub<-data.frame(Name="Summary (Subjective)",Subjects=sum(COVID19[COVID19$Type=="Subjective","Number of subjects"]),Cases=sum(COVID19[COVID19$Type=="Subjective","Cases"]))
